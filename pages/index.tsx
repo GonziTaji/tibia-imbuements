@@ -1,19 +1,23 @@
 import { useState } from "react";
-import { EnumType } from "typescript";
 
 enum ImbuementPower {
-    Basic = "Basic",
-    Intricate = "Intricate",
-    Powerfull = "Powerfull",
+    Basic,
+    Intricate,
+    Powerfull,
 }
+
 enum ImbuementType {
     Vampirism = "Vampirism",
+    Void = "Void",
 }
 
 enum Items {
     VampireTeeth = "Vampire Theet",
     BloodyPincers = "Bloody Pincers",
     DeadBrain = "Dead Brain",
+    RopeBelt = "Rope Belt",
+    SilencerClaws = "Silencer Claws",
+    GrimeeLeechWings = "GrimeeLeech Wings",
 }
 
 type ImbuementPrice = {
@@ -21,14 +25,16 @@ type ImbuementPrice = {
     noFailureFee: number;
 };
 
+type ItemData = {
+    item: Items;
+    quantity: number;
+};
+
 type ImbuementTypeData = {
     effectName: string;
     effectValues: { [power in ImbuementPower]: number };
     items: {
-        [power in ImbuementPower]: {
-            item: Items;
-            quantity: number;
-        }[];
+        [power in ImbuementPower]: ItemData[];
     };
 };
 
@@ -52,31 +58,51 @@ const pricePerPower: {
 const imbuementTypesData: { [imbtype in ImbuementType]: ImbuementTypeData } = {
     [ImbuementType.Vampirism]: {
         effectName: "Life Leech",
-        effectValues: {
-            [ImbuementPower.Basic]: 5,
-            [ImbuementPower.Intricate]: 10,
-            [ImbuementPower.Powerfull]: 25,
-        },
-        items: {
-            [ImbuementPower.Basic]: [
+        effectValues: [5, 10, 25],
+        items: [
+            [
                 {
                     item: Items.VampireTeeth,
                     quantity: 25,
                 },
             ],
-            [ImbuementPower.Intricate]: [
+            [
                 {
                     item: Items.BloodyPincers,
                     quantity: 15,
                 },
             ],
-            [ImbuementPower.Powerfull]: [
+            [
                 {
                     item: Items.DeadBrain,
                     quantity: 5,
                 },
             ],
-        },
+        ],
+    },
+    [ImbuementType.Void]: {
+        effectName: "Mana Leech",
+        effectValues: [3, 5, 8],
+        items: [
+            [
+                {
+                    item: Items.RopeBelt,
+                    quantity: 25,
+                },
+            ],
+            [
+                {
+                    item: Items.SilencerClaws,
+                    quantity: 15,
+                },
+            ],
+            [
+                {
+                    item: Items.GrimeeLeechWings,
+                    quantity: 5,
+                },
+            ],
+        ],
     },
 };
 
@@ -85,8 +111,12 @@ for (const imbuementType in ImbuementType) {
     // @ts-ignore
     const data: ImbuementTypeData = imbuementTypesData[imbuementType];
 
-    data.items[ImbuementPower.Intricate].push(...data.items.Basic);
-    data.items[ImbuementPower.Powerfull].push(...data.items.Intricate);
+    data.items[ImbuementPower.Intricate].push(
+        ...data.items[ImbuementPower.Basic]
+    );
+    data.items[ImbuementPower.Powerfull].push(
+        ...data.items[ImbuementPower.Intricate]
+    );
 }
 
 // TODO: save/load from localstorage
@@ -94,6 +124,9 @@ const itemPrices: { [item in Items]: number } = {
     [Items.VampireTeeth]: 2500,
     [Items.BloodyPincers]: 1500,
     [Items.DeadBrain]: 14000,
+    [Items.RopeBelt]: 2700,
+    [Items.SilencerClaws]: 2500,
+    [Items.GrimeeLeechWings]: 1700,
 };
 
 function formatGold(gold: number): string {
@@ -135,11 +168,13 @@ export default function Home() {
                             setImbuementPower(e.currentTarget.value as any)
                         }
                     >
-                        {Object.entries(ImbuementPower).map(([key, name]) => (
-                            <option key={key} value={key}>
-                                {name}
-                            </option>
-                        ))}
+                        {Object.entries(ImbuementPower)
+                            .filter(([key]) => !isNaN(Number(key))) // enum with no explicit value
+                            .map(([key, name]) => (
+                                <option key={key} value={key}>
+                                    {name}
+                                </option>
+                            ))}
                     </select>
 
                     <select
@@ -154,6 +189,23 @@ export default function Home() {
                         ))}
                     </select>
 
+                    <input
+                        type="text"
+                        style={{ width: "80px" }}
+                        value={imbuementTypesData[imbuementType].effectName}
+                        disabled
+                    />
+
+                    <input
+                        type="text"
+                        style={{ width: "80px" }}
+                        value={
+                            imbuementTypesData[imbuementType].effectValues[
+                                imbuementPower
+                            ] + " %"
+                        }
+                        disabled
+                    />
                     <input
                         type="text"
                         style={{ width: "80px" }}
@@ -215,3 +267,17 @@ export default function Home() {
         </main>
     );
 }
+
+interface ImbuementLineProps {
+    total: number;
+    setTotal: (value: number) => void;
+    items: ItemData[];
+    setItems: (value: ItemData[]) => void;
+}
+
+function ImbuementLine({
+    total,
+    items,
+    setItems,
+    setTotal,
+}: ImbuementLineProps) {}
