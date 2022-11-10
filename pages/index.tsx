@@ -158,74 +158,99 @@ export default function Home() {
             <article>
                 <h1>Imbuements</h1>
 
-                <div
-                    style={{
-                        display: "flex",
-                    }}
-                >
-                    <select
-                        onChange={(e) =>
-                            setImbuementPower(e.currentTarget.value as any)
-                        }
-                    >
-                        {Object.entries(ImbuementPower)
-                            .filter(([key]) => !isNaN(Number(key))) // enum with no explicit value
-                            .map(([key, name]) => (
-                                <option key={key} value={key}>
-                                    {name}
-                                </option>
-                            ))}
-                    </select>
+                <table border={1}>
+                    <thead>
+                        <tr>
+                            <th>Power</th>
+                            <th>Type</th>
+                            <th>Effect</th>
+                            <th>Cost</th>
+                            <th>Total Items</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
 
-                    <select
-                        onChange={(e) =>
-                            setImbuementType(e.currentTarget.value as any)
-                        }
-                    >
-                        {Object.entries(ImbuementType).map(([key, name]) => (
-                            <option key={key} value={key}>
-                                {name}
-                            </option>
-                        ))}
-                    </select>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select
+                                    onChange={(e) =>
+                                        setImbuementPower(
+                                            e.currentTarget.value as any
+                                        )
+                                    }
+                                >
+                                    {Object.entries(ImbuementPower)
+                                        .filter(([key]) => !isNaN(Number(key))) // enum with no explicit value
+                                        .map(([key, name]) => (
+                                            <option key={key} value={key}>
+                                                {name}
+                                            </option>
+                                        ))}
+                                </select>
+                            </td>
 
-                    <input
-                        type="text"
-                        style={{ width: "80px" }}
-                        value={imbuementTypesData[imbuementType].effectName}
-                        disabled
-                    />
+                            <td>
+                                <select
+                                    onChange={(e) =>
+                                        setImbuementType(
+                                            e.currentTarget.value as any
+                                        )
+                                    }
+                                >
+                                    {Object.entries(ImbuementType).map(
+                                        ([key, name]) => (
+                                            <option key={key} value={key}>
+                                                {name}
+                                            </option>
+                                        )
+                                    )}
+                                </select>
+                            </td>
 
-                    <input
-                        type="text"
-                        style={{ width: "80px" }}
-                        value={
-                            imbuementTypesData[imbuementType].effectValues[
-                                imbuementPower
-                            ] + " %"
-                        }
-                        disabled
-                    />
-                    <input
-                        type="text"
-                        style={{ width: "80px" }}
-                        value={formatGold(priceData.price)}
-                        disabled
-                    />
-                    <input
-                        type="text"
-                        style={{ width: "80px" }}
-                        value={formatGold(priceData.noFailureFee)}
-                        disabled
-                    />
+                            <td>
+                                <span>
+                                    {
+                                        imbuementTypesData[imbuementType]
+                                            .effectName
+                                    }
 
-                    <input
-                        type="text"
-                        style={{ width: "80px" }}
-                        value={formatGold(totalItemPrice)}
-                        disabled
-                    />
-                </div>
+                                    {imbuementTypesData[imbuementType]
+                                        .effectValues[imbuementPower] + " %"}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span
+                                    title={
+                                        priceData.price +
+                                        " + " +
+                                        priceData.noFailureFee +
+                                        " (100%) "
+                                    }
+                                >
+                                    {formatGold(
+                                        priceData.price + priceData.noFailureFee
+                                    )}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span>{formatGold(totalItemPrice)}</span>
+                            </td>
+
+                            <td>
+                                <span>
+                                    {formatGold(
+                                        priceData.price +
+                                            priceData.noFailureFee +
+                                            totalItemPrice
+                                    )}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </article>
 
             <article>
