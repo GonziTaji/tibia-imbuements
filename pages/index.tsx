@@ -20,6 +20,8 @@ enum ImbuementType {
     None = "None", // For easy blank selection
     Vampirism = "Vampirism",
     Void = "Void",
+    Strike = "Strike",
+    Bash = "Bash",
 }
 
 enum Item {
@@ -29,6 +31,12 @@ enum Item {
     RopeBelt = "Rope Belt",
     SilencerClaws = "Silencer Claws",
     GrimeeLeechWings = "GrimeeLeech Wings",
+    ProtectiveCharms = "Protective Charms",
+    Sabreteeth = "Sabreteeth",
+    VexclawTalon = "Vexclaw Talon",
+    CyclopsToes = "Cyclops Toes",
+    OgreNoseRing = "Ogre Norse Ring",
+    WarmastersWristguards = "Warmaster WristGuards",
 }
 
 type ImbuementPrice = {
@@ -67,9 +75,14 @@ const pricePerPower: {
 };
 
 const imbuementsPerSlot: { [slot in EquipementSlot]: ImbuementType[] } = {
-    [EquipementSlot.Helmet]: [ImbuementType.Void],
+    [EquipementSlot.Helmet]: [ImbuementType.Void, ImbuementType.Bash],
     [EquipementSlot.Armor]: [ImbuementType.Vampirism],
-    [EquipementSlot.Weapon]: [ImbuementType.Vampirism, ImbuementType.Void],
+    [EquipementSlot.Weapon]: [
+        ImbuementType.Vampirism,
+        ImbuementType.Void,
+        ImbuementType.Strike,
+        ImbuementType.Bash,
+    ],
     [EquipementSlot.Shield]: [],
     [EquipementSlot.Legs]: [],
     [EquipementSlot.Boots]: [],
@@ -85,48 +98,36 @@ const imbuementTypesData: { [imbtype in ImbuementType]: ImbuementTypeData } = {
         effectName: "Life Leech",
         effectValues: [5, 10, 25],
         items: [
-            [
-                {
-                    item: Item.VampireTeeth,
-                    quantity: 25,
-                },
-            ],
-            [
-                {
-                    item: Item.BloodyPincers,
-                    quantity: 15,
-                },
-            ],
-            [
-                {
-                    item: Item.DeadBrain,
-                    quantity: 5,
-                },
-            ],
+            [{ item: Item.VampireTeeth, quantity: 25 }],
+            [{ item: Item.BloodyPincers, quantity: 15 }],
+            [{ item: Item.DeadBrain, quantity: 5 }],
         ],
     },
     [ImbuementType.Void]: {
         effectName: "Mana Leech",
         effectValues: [3, 5, 8],
         items: [
-            [
-                {
-                    item: Item.RopeBelt,
-                    quantity: 25,
-                },
-            ],
-            [
-                {
-                    item: Item.SilencerClaws,
-                    quantity: 15,
-                },
-            ],
-            [
-                {
-                    item: Item.GrimeeLeechWings,
-                    quantity: 5,
-                },
-            ],
+            [{ item: Item.RopeBelt, quantity: 25 }],
+            [{ item: Item.SilencerClaws, quantity: 15 }],
+            [{ item: Item.GrimeeLeechWings, quantity: 5 }],
+        ],
+    },
+    [ImbuementType.Strike]: {
+        effectName: "Critical damage (prob. 10%)",
+        effectValues: [15, 25, 50],
+        items: [
+            [{ item: Item.ProtectiveCharms, quantity: 20 }],
+            [{ item: Item.Sabreteeth, quantity: 25 }],
+            [{ item: Item.VexclawTalon, quantity: 5 }],
+        ],
+    },
+    [ImbuementType.Bash]: {
+        effectName: "Club Fighting",
+        effectValues: [1, 2, 4],
+        items: [
+            [{ item: Item.CyclopsToes, quantity: 20 }],
+            [{ item: Item.OgreNoseRing, quantity: 15 }],
+            [{ item: Item.WarmastersWristguards, quantity: 10 }],
         ],
     },
 };
@@ -152,6 +153,12 @@ const itemPrices: { [item in Item]: number } = {
     [Item.RopeBelt]: 2700,
     [Item.SilencerClaws]: 2500,
     [Item.GrimeeLeechWings]: 1700,
+    [Item.ProtectiveCharms]: 1500,
+    [Item.Sabreteeth]: 2500,
+    [Item.VexclawTalon]: 4000,
+    [Item.CyclopsToes]: 1000,
+    [Item.OgreNoseRing]: 1000,
+    [Item.WarmastersWristguards]: 1000,
 };
 
 function formatGold(gold: number): string {
