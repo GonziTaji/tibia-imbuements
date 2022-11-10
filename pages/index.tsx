@@ -1,4 +1,5 @@
 import { useState } from "react";
+import createStore from "zustand";
 
 enum ImbuementPower {
     Basic,
@@ -37,6 +38,8 @@ type ImbuementTypeData = {
         [power in ImbuementPower]: ItemData[];
     };
 };
+
+type WithTotal = { total: number };
 
 const pricePerPower: {
     [power in ImbuementPower]: ImbuementPrice;
@@ -133,29 +136,106 @@ function formatGold(gold: number): string {
     return new Intl.NumberFormat("es-CL").format(gold) + " gp";
 }
 
+type Imbuement = {
+    power: ImbuementPower;
+    type: ImbuementType;
+    items: Array<ItemData>;
+    itemsTotal: number;
+    total: number;
+};
+
+function createImbuement(
+    power: ImbuementPower,
+    type: ImbuementType
+): Imbuement {
+    const imbuementTypeData = imbuementTypesData[type];
+
+    const imbuement = {
+        power,
+        type,
+        items: imbuementTypeData.items[power],
+        itemsTotal: 0,
+        total: 0,
+    };
+
+    for (const { item, quantity } of imbuement.items) {
+        imbuement.itemsTotal += itemPrices[item] * quantity;
+    }
+
+    const price = pricePerPower[imbuement.power];
+
+    imbuement.total = imbuement.itemsTotal + price.price + price.noFailureFee;
+
+    return imbuement;
+}
+
+type ImbuementStore = {
+    imbuements: Imbuement[];
+    addImbuement: () => void;
+    changeImbuement: (
+        index: number,
+        power: ImbuementPower,
+        type: ImbuementType
+    ) => void;
+};
+
+const useImbuementsStore = createStore<ImbuementStore>((set) => ({
+    imbuements: [],
+    addImbuement: () =>
+        set((state) => ({
+            imbuements: [
+                ...state.imbuements,
+                createImbuement(ImbuementPower.Basic, ImbuementType.Vampirism),
+            ],
+        })),
+    changeImbuement: (
+        index: number,
+        power: ImbuementPower,
+        type: ImbuementType
+    ) =>
+        set((state) => {
+            const imbuements = [...state.imbuements];
+
+            imbuements.splice(index, 1, createImbuement(power, type));
+
+            return { imbuements };
+        }),
+}));
+
 export default function Home() {
-    const [imbuementPower, setImbuementPower] = useState<ImbuementPower>(
-        ImbuementPower.Basic
-    );
-    const [imbuementType, setImbuementType] = useState<ImbuementType>(
-        ImbuementType.Vampirism
-    );
+    const { imbuements, addImbuement, changeImbuement } = useImbuementsStore();
 
-    const priceData = pricePerPower[imbuementPower];
+    const changeType = (index: number, type: ImbuementType) =>
+        changeImbuement(index, imbuements[index].power, type);
 
-    const imbuementTypeData = imbuementTypesData[imbuementType];
+    const changePower = (index: number, power: ImbuementPower) =>
+        changeImbuement(index, power, imbuements[index].type);
 
-    const items = imbuementTypeData.items[imbuementPower];
+    const items: ItemData[] = [];
+    let grandTotal = 0;
 
-    let totalItemPrice = 0;
+    for (const imbuement of imbuements) {
+        grandTotal += imbuement.total;
+        for (const itemData of imbuement.items) {
+            const index = items.findIndex(
+                (_item) => _item.item === itemData.item
+            );
 
-    for (const { item, quantity } of items) {
-        totalItemPrice += itemPrices[item] * quantity;
+            if (index === -1) {
+                items.push({
+                    item: itemData.item,
+                    quantity: itemData.quantity,
+                });
+            } else {
+                items[index].quantity += itemData.quantity;
+            }
+        }
     }
 
     return (
         <main>
             <article>
+                <button onClick={addImbuement}>+</button>
                 <h1>Imbuements</h1>
 
                 <table border={1}>
@@ -171,86 +251,96 @@ export default function Home() {
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>
-                                <select
-                                    onChange={(e) =>
-                                        setImbuementPower(
-                                            e.currentTarget.value as any
-                                        )
-                                    }
-                                >
-                                    {Object.entries(ImbuementPower)
-                                        .filter(([key]) => !isNaN(Number(key))) // enum with no explicit value
-                                        .map(([key, name]) => (
-                                            <option key={key} value={key}>
-                                                {name}
-                                            </option>
-                                        ))}
-                                </select>
-                            </td>
+                        {imbuements.map((imbuement, i) => (
+                            <tr key={i}>
+                                <td>
+                                    <select
+                                        onChange={(e) =>
+                                            changePower(
+                                                i,
+                                                e.currentTarget.value as any
+                                            )
+                                        }
+                                    >
+                                        {Object.entries(ImbuementPower)
+                                            .filter(
+                                                ([key]) => !isNaN(Number(key))
+                                            ) // enum with no explicit value
+                                            .map(([key, name]) => (
+                                                <option key={key} value={key}>
+                                                    {name}
+                                                </option>
+                                            ))}
+                                    </select>
+                                </td>
 
-                            <td>
-                                <select
-                                    onChange={(e) =>
-                                        setImbuementType(
-                                            e.currentTarget.value as any
-                                        )
-                                    }
-                                >
-                                    {Object.entries(ImbuementType).map(
-                                        ([key, name]) => (
-                                            <option key={key} value={key}>
-                                                {name}
-                                            </option>
-                                        )
-                                    )}
-                                </select>
-                            </td>
+                                <td>
+                                    <select
+                                        onChange={(e) =>
+                                            changeType(
+                                                i,
+                                                e.currentTarget.value as any
+                                            )
+                                        }
+                                    >
+                                        {Object.entries(ImbuementType).map(
+                                            ([key, name]) => (
+                                                <option key={key} value={key}>
+                                                    {name}
+                                                </option>
+                                            )
+                                        )}
+                                    </select>
+                                </td>
 
-                            <td>
-                                <span>
-                                    {
-                                        imbuementTypesData[imbuementType]
-                                            .effectName
-                                    }
+                                <td>
+                                    <span>
+                                        {
+                                            imbuementTypesData[imbuement.type]
+                                                .effectName
+                                        }
 
-                                    {imbuementTypesData[imbuementType]
-                                        .effectValues[imbuementPower] + " %"}
-                                </span>
-                            </td>
+                                        {imbuementTypesData[imbuement.type]
+                                            .effectValues[imbuement.power] +
+                                            " %"}
+                                    </span>
+                                </td>
 
-                            <td>
-                                <span
-                                    title={
-                                        priceData.price +
-                                        " + " +
-                                        priceData.noFailureFee +
-                                        " (100%) "
-                                    }
-                                >
-                                    {formatGold(
-                                        priceData.price + priceData.noFailureFee
-                                    )}
-                                </span>
-                            </td>
+                                <td>
+                                    <span
+                                        title={
+                                            pricePerPower[imbuement.power]
+                                                .price +
+                                            " + " +
+                                            pricePerPower[imbuement.power]
+                                                .noFailureFee +
+                                            " (100%) "
+                                        }
+                                    >
+                                        {formatGold(
+                                            pricePerPower[imbuement.power]
+                                                .price +
+                                                pricePerPower[imbuement.power]
+                                                    .noFailureFee
+                                        )}
+                                    </span>
+                                </td>
 
-                            <td>
-                                <span>{formatGold(totalItemPrice)}</span>
-                            </td>
+                                <td>
+                                    <span>
+                                        {formatGold(imbuement.itemsTotal)}
+                                    </span>
+                                </td>
 
-                            <td>
-                                <span>
-                                    {formatGold(
-                                        priceData.price +
-                                            priceData.noFailureFee +
-                                            totalItemPrice
-                                    )}
-                                </span>
-                            </td>
-                        </tr>
+                                <td>
+                                    <span>{formatGold(imbuement.total)}</span>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
+
+                <h2>Total: {formatGold(grandTotal)}</h2>
             </article>
 
             <article>
