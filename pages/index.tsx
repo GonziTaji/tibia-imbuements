@@ -1,5 +1,14 @@
-import { useState } from "react";
 import createStore from "zustand";
+import { immer } from "zustand/middleware/immer";
+
+enum EquipementSlot {
+    Helmet = "Helmet",
+    Armor = "Armor",
+    Weapon = "Weapon",
+    Shield = "Shield",
+    Legs = "Legs",
+    Boots = "Boots",
+}
 
 enum ImbuementPower {
     Basic,
@@ -12,7 +21,7 @@ enum ImbuementType {
     Void = "Void",
 }
 
-enum Items {
+enum Item {
     VampireTeeth = "Vampire Theet",
     BloodyPincers = "Bloody Pincers",
     DeadBrain = "Dead Brain",
@@ -27,7 +36,7 @@ type ImbuementPrice = {
 };
 
 type ItemData = {
-    item: Items;
+    item: Item;
     quantity: number;
 };
 
@@ -38,8 +47,6 @@ type ImbuementTypeData = {
         [power in ImbuementPower]: ItemData[];
     };
 };
-
-type WithTotal = { total: number };
 
 const pricePerPower: {
     [power in ImbuementPower]: ImbuementPrice;
@@ -58,6 +65,15 @@ const pricePerPower: {
     },
 };
 
+const imbuementsPerSlot = {
+    [EquipementSlot.Helmet]: [EquipementSlot.Helmet],
+    [EquipementSlot.Armor]: [ImbuementType.Vampirism],
+    [EquipementSlot.Weapon]: [ImbuementType.Vampirism, EquipementSlot.Helmet],
+    [EquipementSlot.Shield]: [],
+    [EquipementSlot.Legs]: [],
+    [EquipementSlot.Boots]: [],
+};
+
 const imbuementTypesData: { [imbtype in ImbuementType]: ImbuementTypeData } = {
     [ImbuementType.Vampirism]: {
         effectName: "Life Leech",
@@ -65,19 +81,19 @@ const imbuementTypesData: { [imbtype in ImbuementType]: ImbuementTypeData } = {
         items: [
             [
                 {
-                    item: Items.VampireTeeth,
+                    item: Item.VampireTeeth,
                     quantity: 25,
                 },
             ],
             [
                 {
-                    item: Items.BloodyPincers,
+                    item: Item.BloodyPincers,
                     quantity: 15,
                 },
             ],
             [
                 {
-                    item: Items.DeadBrain,
+                    item: Item.DeadBrain,
                     quantity: 5,
                 },
             ],
@@ -89,19 +105,19 @@ const imbuementTypesData: { [imbtype in ImbuementType]: ImbuementTypeData } = {
         items: [
             [
                 {
-                    item: Items.RopeBelt,
+                    item: Item.RopeBelt,
                     quantity: 25,
                 },
             ],
             [
                 {
-                    item: Items.SilencerClaws,
+                    item: Item.SilencerClaws,
                     quantity: 15,
                 },
             ],
             [
                 {
-                    item: Items.GrimeeLeechWings,
+                    item: Item.GrimeeLeechWings,
                     quantity: 5,
                 },
             ],
@@ -123,13 +139,13 @@ for (const imbuementType in ImbuementType) {
 }
 
 // TODO: save/load from localstorage
-const itemPrices: { [item in Items]: number } = {
-    [Items.VampireTeeth]: 2500,
-    [Items.BloodyPincers]: 1500,
-    [Items.DeadBrain]: 14000,
-    [Items.RopeBelt]: 2700,
-    [Items.SilencerClaws]: 2500,
-    [Items.GrimeeLeechWings]: 1700,
+const itemPrices: { [item in Item]: number } = {
+    [Item.VampireTeeth]: 2500,
+    [Item.BloodyPincers]: 1500,
+    [Item.DeadBrain]: 14000,
+    [Item.RopeBelt]: 2700,
+    [Item.SilencerClaws]: 2500,
+    [Item.GrimeeLeechWings]: 1700,
 };
 
 function formatGold(gold: number): string {
@@ -179,28 +195,28 @@ type ImbuementStore = {
     ) => void;
 };
 
-const useImbuementsStore = createStore<ImbuementStore>((set) => ({
-    imbuements: [],
-    addImbuement: () =>
-        set((state) => ({
-            imbuements: [
-                ...state.imbuements,
-                createImbuement(ImbuementPower.Basic, ImbuementType.Vampirism),
-            ],
-        })),
-    changeImbuement: (
-        index: number,
-        power: ImbuementPower,
-        type: ImbuementType
-    ) =>
-        set((state) => {
-            const imbuements = [...state.imbuements];
-
-            imbuements.splice(index, 1, createImbuement(power, type));
-
-            return { imbuements };
-        }),
-}));
+const useImbuementsStore = createStore(
+    immer<ImbuementStore>((set) => ({
+        imbuements: [],
+        addImbuement: () =>
+            set((state) => {
+                state.imbuements.push(
+                    createImbuement(
+                        ImbuementPower.Basic,
+                        ImbuementType.Vampirism
+                    )
+                );
+            }),
+        changeImbuement: (
+            index: number,
+            power: ImbuementPower,
+            type: ImbuementType
+        ) =>
+            set((state) => {
+                state.imbuements.splice(index, 1, createImbuement(power, type));
+            }),
+    }))
+);
 
 export default function Home() {
     const { imbuements, addImbuement, changeImbuement } = useImbuementsStore();
@@ -216,6 +232,7 @@ export default function Home() {
 
     for (const imbuement of imbuements) {
         grandTotal += imbuement.total;
+
         for (const itemData of imbuement.items) {
             const index = items.findIndex(
                 (_item) => _item.item === itemData.item
