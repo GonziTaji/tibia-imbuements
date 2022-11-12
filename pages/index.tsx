@@ -146,7 +146,7 @@ for (const imbuementType in ImbuementType) {
 }
 
 // TODO: save/load from localstorage
-const itemPrices: { [item in Item]: number } = {
+const baseItemPrices: { [item in Item]: number } = {
     [Item.VampireTeeth]: 2500,
     [Item.BloodyPincers]: 1500,
     [Item.DeadBrain]: 14000,
@@ -175,7 +175,8 @@ type Imbuement = {
 
 function createImbuement(
     power: ImbuementPower,
-    type: ImbuementType
+    type: ImbuementType,
+    itemPrices: { [item in Item]: number }
 ): Imbuement {
     const imbuementTypeData = imbuementTypesData[type];
 
@@ -210,6 +211,7 @@ type ImbuementStore = {
             slotQuantity: number;
         };
     };
+    itemPrices: { [item in Item]: number };
     changeImbuement: (
         slot: EquipementSlot,
         index: number,
@@ -217,6 +219,7 @@ type ImbuementStore = {
         type: ImbuementType
     ) => void;
     changeSlotQuantity: (slot: EquipementSlot, quantity: number) => void;
+    changePrice: (item: Item, price: number) => void;
 };
 
 const useImbuementsStore = createStore(
@@ -230,7 +233,7 @@ const useImbuementsStore = createStore(
             [EquipementSlot.Boots]: { imbuements: [], slotQuantity: 0 },
         },
         imbuements: [],
-
+        itemPrices: baseItemPrices,
         changeSlotQuantity: (slot, quantity) =>
             set((state) => {
                 const currentQuantity = state.slots[slot].imbuements.length;
@@ -244,7 +247,8 @@ const useImbuementsStore = createStore(
                         state.slots[slot].imbuements.push(
                             createImbuement(
                                 ImbuementPower.Basic,
-                                ImbuementType.None
+                                ImbuementType.None,
+                                state.itemPrices
                             )
                         );
                     }
@@ -271,18 +275,61 @@ const useImbuementsStore = createStore(
                         1,
                         createImbuement(
                             imbuements[indexOfExisting].power,
-                            ImbuementType.None
+                            ImbuementType.None,
+                            state.itemPrices
                         )
                     );
                 }
 
-                imbuements.splice(index, 1, createImbuement(power, type));
+                imbuements.splice(
+                    index,
+                    1,
+                    createImbuement(power, type, state.itemPrices)
+                );
+            }),
+        changePrice: (item: Item, price: number) =>
+            set((state) => {
+                state.itemPrices[item] = price;
+
+                console.log(price);
+
+                for (const slot in EquipementSlot) {
+                    const slotImbuements =
+                        state.slots[slot as EquipementSlot].imbuements;
+
+                    for (let i = 0; i < slotImbuements.length; i++) {
+                        const imbuement = slotImbuements[i];
+                        const usesItem = imbuementTypesData[
+                            imbuement.type
+                        ].items[ImbuementPower.Powerfull].some(
+                            (_item) => _item.item === item
+                        );
+
+                        console.log(imbuement.type, "uses item:", usesItem);
+
+                        if (usesItem) {
+                            slotImbuements[i] = createImbuement(
+                                imbuement.power,
+                                imbuement.type,
+                                state.itemPrices
+                            );
+
+                            console.log(slotImbuements[i]);
+                        }
+                    }
+                }
             }),
     }))
 );
 
 export default function Home() {
-    const { slots, changeImbuement, changeSlotQuantity } = useImbuementsStore();
+    const {
+        slots,
+        itemPrices,
+        changeImbuement,
+        changeSlotQuantity,
+        changePrice,
+    } = useImbuementsStore();
 
     const allImbuements = Object.values(slots).flatMap(
         (slot) => slot.imbuements
@@ -529,7 +576,12 @@ export default function Home() {
                             <input
                                 type="number"
                                 value={itemPrices[itemData.item]}
-                                disabled
+                                onChange={(e) =>
+                                    changePrice(
+                                        itemData.item,
+                                        parseInt(e.currentTarget.value)
+                                    )
+                                }
                             />
                             <span
                                 style={{ display: "block", wordWrap: "normal" }}
