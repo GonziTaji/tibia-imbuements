@@ -1,5 +1,8 @@
+import { useEffect } from "react";
 import createStore from "zustand";
 import { immer } from "zustand/middleware/immer";
+
+const pricesStorageKey = "ti_item_prices";
 
 enum EquipementSlot {
     Helmet = "Helmet",
@@ -220,6 +223,7 @@ type ImbuementStore = {
     ) => void;
     changeSlotQuantity: (slot: EquipementSlot, quantity: number) => void;
     changePrice: (item: Item, price: number) => void;
+    loadPrices: () => void;
 };
 
 const useImbuementsStore = createStore(
@@ -291,8 +295,6 @@ const useImbuementsStore = createStore(
             set((state) => {
                 state.itemPrices[item] = price;
 
-                console.log(price);
-
                 for (const slot in EquipementSlot) {
                     const slotImbuements =
                         state.slots[slot as EquipementSlot].imbuements;
@@ -305,17 +307,43 @@ const useImbuementsStore = createStore(
                             (_item) => _item.item === item
                         );
 
-                        console.log(imbuement.type, "uses item:", usesItem);
-
                         if (usesItem) {
                             slotImbuements[i] = createImbuement(
                                 imbuement.power,
                                 imbuement.type,
                                 state.itemPrices
                             );
-
-                            console.log(slotImbuements[i]);
                         }
+                    }
+                }
+
+                localStorage.setItem(
+                    pricesStorageKey,
+                    JSON.stringify(state.itemPrices)
+                );
+            }),
+        loadPrices: () =>
+            set((state) => {
+                const storageItemPricesStr =
+                    localStorage.getItem(pricesStorageKey);
+
+                if (storageItemPricesStr) {
+                    try {
+                        const storageItemPrices =
+                            JSON.parse(storageItemPricesStr);
+
+                        for (const item in baseItemPrices) {
+                            if (storageItemPrices[item]) {
+                                state.itemPrices[item as Item] =
+                                    storageItemPrices[item];
+                            }
+                        }
+                    } catch (e) {
+                        console.error(
+                            "UH OH! Item prices from local storage could not be loaded",
+                            e
+                        );
+                        localStorage.removeItem(pricesStorageKey);
                     }
                 }
             }),
@@ -329,7 +357,11 @@ export default function Home() {
         changeImbuement,
         changeSlotQuantity,
         changePrice,
+        loadPrices,
     } = useImbuementsStore();
+
+    // Todo: load saved prices outside component or something. Just get rid of this lol
+    useEffect(() => loadPrices(), []);
 
     const allImbuements = Object.values(slots).flatMap(
         (slot) => slot.imbuements
