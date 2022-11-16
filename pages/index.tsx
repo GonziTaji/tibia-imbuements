@@ -227,7 +227,7 @@ const useImbuementsStore = createStore(
                 const currentQuantity = state.slots[slot].imbuements.length;
 
                 if (currentQuantity > quantity) {
-                    state.slots[slot].imbuements = state.slots[slot].imbuements.slice(1, quantity + 1);
+                    state.slots[slot].imbuements = state.slots[slot].imbuements.slice(0, quantity);
                 } else if (currentQuantity < quantity) {
                     for (let i = currentQuantity; i < quantity; i++) {
                         state.slots[slot].imbuements.push(
@@ -355,6 +355,7 @@ export default function Home() {
                                 type="number"
                                 min={0}
                                 max={3}
+                                onFocus={(e) => e.currentTarget.select()}
                                 onChange={(e) => changeSlotQuantity(slot as any, Number(e.currentTarget.value))}
                                 value={slots[slot].slotQuantity}
                             />
@@ -381,7 +382,7 @@ export default function Home() {
                                                 value={imbuement.type}
                                             >
                                                 <option key={IMBUEMENT_TYPE.None} value={IMBUEMENT_TYPE.None}>
-                                                    -- No selection
+                                                    -- None
                                                 </option>
                                                 {availableTypes.map((value, i) => (
                                                     <option key={i} value={value}>
@@ -405,10 +406,10 @@ export default function Home() {
 
                                         <td>
                                             <span>
-                                                {imbuementTypesData[imbuement.type].effectName}
-
                                                 {imbuementTypesData[imbuement.type].effectValues[imbuement.power] +
-                                                    ' %'}
+                                                    '% '}
+
+                                                {imbuementTypesData[imbuement.type].effectName}
                                             </span>
                                         </td>
 
