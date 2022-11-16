@@ -2,7 +2,7 @@ import { IMBUEMENT_POWER, IMBUEMENT_TYPE, pricePerPower } from '../data';
 import useImbuementStore from '../hooks/useImbuementStore';
 import { Imbuement } from '../types';
 import { formatGold } from '../utils';
-import styles from '../CostList.module.scss';
+import styles from '../../styles/CostList.module.scss';
 
 export default function ImbuementCostList() {
     const { slots } = useImbuementStore();
@@ -38,7 +38,6 @@ export default function ImbuementCostList() {
                         <th>Imbuement</th>
                         <th>Cost</th>
                         <th>Items</th>
-                        <th>Subtotal</th>
                         <th>Quantity</th>
                         <th>Total</th>
                     </tr>
@@ -65,8 +64,6 @@ export default function ImbuementCostList() {
                             </td>
 
                             <td className={styles.number}>{formatGold(imbuement.itemsTotal)}</td>
-
-                            <td className={styles.number}>{formatGold(imbuement.total)}</td>
 
                             <td style={{ textAlign: 'center' }}>{imbuement.quantity}</td>
 

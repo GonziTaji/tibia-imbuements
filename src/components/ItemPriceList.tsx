@@ -4,7 +4,7 @@ export default function ItemPriceList() {
     const { changePrice, itemPrices } = useImbuementStore();
 
     return (
-        <article>
+        <article style={{ width: 'fit-content' }}>
             <h1>Item Prices</h1>
 
             <ul style={{ margin: 0, padding: 0 }}>
@@ -13,10 +13,10 @@ export default function ItemPriceList() {
                         key={item}
                         style={{
                             display: 'grid',
-                            gridTemplateColumns: '9rem min-content 1fr 1fr',
+                            gridTemplateColumns: '1fr 1fr',
                         }}
                     >
-                        <label htmlFor={item}>{item}</label>
+                        <label htmlFor={item}>{item}&nbsp;</label>
                         <input
                             id={item}
                             type="number"

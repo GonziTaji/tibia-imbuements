@@ -10,13 +10,15 @@ import {
 } from '../data';
 import { Imbuement } from '../types';
 
-export type ImbuementStore = {
-    slots: {
-        [slot: string]: {
-            imbuements: Imbuement[];
-            slotQuantity: number;
-        };
+export type SlotData = {
+    [slot: string]: {
+        imbuements: Imbuement[];
+        slotQuantity: number;
     };
+};
+
+export type ImbuementStore = {
+    slots: SlotData;
     itemPrices: { [item: string]: number };
     changeImbuement: (slot: string, index: number, power: number, type: string) => void;
     changeSlotQuantity: (slot: string, quantity: number) => void;
@@ -52,16 +54,23 @@ function createImbuement(power: number, type: string, itemPrices: { [item: strin
     return imbuement;
 }
 
+const initialSlots: SlotData = {
+    [EQUIPEMENT_SLOT.Helmet]: { imbuements: [], slotQuantity: 2 },
+    [EQUIPEMENT_SLOT.Armor]: { imbuements: [], slotQuantity: 3 },
+    [EQUIPEMENT_SLOT.Weapon]: { imbuements: [], slotQuantity: 3 },
+    [EQUIPEMENT_SLOT.Shield]: { imbuements: [], slotQuantity: 1 },
+    [EQUIPEMENT_SLOT.Boots]: { imbuements: [], slotQuantity: 1 },
+};
+
+for (const slot in initialSlots) {
+    for (let i = 0; i < initialSlots[slot].slotQuantity; i++) {
+        initialSlots[slot].imbuements.push(createImbuement(IMBUEMENT_POWER.Basic, IMBUEMENT_TYPE.None, baseItemPrices));
+    }
+}
+
 const useImbuementStore = createStore(
     immer<ImbuementStore>((set) => ({
-        slots: {
-            [EQUIPEMENT_SLOT.Helmet]: { imbuements: [], slotQuantity: 0 },
-            [EQUIPEMENT_SLOT.Armor]: { imbuements: [], slotQuantity: 0 },
-            [EQUIPEMENT_SLOT.Weapon]: { imbuements: [], slotQuantity: 0 },
-            [EQUIPEMENT_SLOT.Shield]: { imbuements: [], slotQuantity: 0 },
-            [EQUIPEMENT_SLOT.Legs]: { imbuements: [], slotQuantity: 0 },
-            [EQUIPEMENT_SLOT.Boots]: { imbuements: [], slotQuantity: 0 },
-        },
+        slots: initialSlots,
         imbuements: [],
         itemPrices: baseItemPrices,
         changeSlotQuantity: (slot, quantity) =>

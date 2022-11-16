@@ -1,10 +1,19 @@
 import { useEffect } from 'react';
-import { imbuementsPerSlot, imbuementTypesData, IMBUEMENT_POWER, IMBUEMENT_TYPE } from '../src/data';
+import { EQUIPEMENT_SLOT, imbuementsPerSlot, imbuementTypesData, IMBUEMENT_POWER, IMBUEMENT_TYPE } from '../src/data';
 import { ItemData } from '../src/types';
 import useImbuementStore from '../src/hooks/useImbuementStore';
 import { formatGold } from '../src/utils';
 import ItemPriceList from '../src/components/ItemPriceList';
 import ImbuementCostList from '../src/components/ImbuementCostList';
+import styles from '../styles/Home.module.css';
+
+const ImbuementMaxSlot = {
+    [EQUIPEMENT_SLOT.Helmet]: 2,
+    [EQUIPEMENT_SLOT.Armor]: 3,
+    [EQUIPEMENT_SLOT.Weapon]: 3,
+    [EQUIPEMENT_SLOT.Shield]: 1,
+    [EQUIPEMENT_SLOT.Boots]: 1,
+};
 
 export default function Home() {
     const { slots, itemPrices, changeImbuement, changeSlotQuantity, loadPrices } = useImbuementStore();
@@ -43,15 +52,24 @@ export default function Home() {
 
     return (
         <main style={{ padding: 15, paddingTop: 0 }}>
-            <article>
+            <article style={{ width: 'fit-content' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <h1>Imbuements</h1>
                     <h2>Total: {formatGold(grandTotal)}</h2>
                 </div>
 
-                {Object.entries(imbuementsPerSlot).map(([slot, availableTypes]) => (
-                    <div key={slot} style={{ display: 'flex' }}>
-                        <div style={{ border: '1px solid black', marginLeft: '0.2rem', padding: '0.2rem' }}>
+                {Object.keys(EQUIPEMENT_SLOT).map((slot) => (
+                    <div
+                        className={styles.slotContainer}
+                        key={slot}
+                        style={{
+                            border: '1px solid rgba(0,0,0,0.5)',
+                            boxShadow: '1px 1px 3px rgba(0,0,0,0.5)',
+                            padding: '1rem 2rem 0.5rem 2rem',
+                            marginBottom: '1rem',
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span
                                 style={{
                                     display: 'block',
@@ -61,64 +79,54 @@ export default function Home() {
                             >
                                 <b>{slot.toUpperCase()}</b>
                             </span>
-                            <label htmlFor="slot-quantity">Slots: </label>
-                            <input
-                                type="number"
-                                min={0}
-                                max={3}
-                                onFocus={(e) => e.currentTarget.select()}
-                                onChange={(e) => changeSlotQuantity(slot as any, Number(e.currentTarget.value))}
-                                value={slots[slot].slotQuantity}
-                            />
+
+                            <div>
+                                <label htmlFor="slot-quantity">Slots: </label>
+                                <input
+                                    type="number"
+                                    min={0}
+                                    max={ImbuementMaxSlot[slot]}
+                                    onFocus={(e) => e.currentTarget.select()}
+                                    onChange={(e) => changeSlotQuantity(slot as any, Number(e.currentTarget.value))}
+                                    value={slots[slot].slotQuantity}
+                                />
+                            </div>
                         </div>
 
-                        <table style={{ marginBottom: '1rem' }}>
-                            <thead>
-                                <tr>
-                                    <th>Power</th>
-                                    <th>Type</th>
-                                </tr>
-                            </thead>
+                        <hr />
 
-                            <tbody>
-                                {slots[slot].imbuements.map((imbuement, i) => (
-                                    <tr key={i}>
-                                        <td>
-                                            <select
-                                                onChange={(e) => changeType(slot, i, e.currentTarget.value as any)}
-                                                value={imbuement.type}
-                                            >
-                                                <option key={IMBUEMENT_TYPE.None} value={IMBUEMENT_TYPE.None}>
-                                                    -- None
-                                                </option>
-                                                {availableTypes.map((value, i) => (
-                                                    <option key={i} value={value}>
-                                                        {value}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td>
+                        <div>
+                            {slots[slot].imbuements.map((imbuement, i) => (
+                                <div key={i} style={{ display: 'flex', gap: '0.2rem', paddingBottom: '0.5rem' }}>
+                                    <select
+                                        onChange={(e) => changeType(slot, i, e.currentTarget.value as any)}
+                                        value={imbuement.type}
+                                    >
+                                        <option key={IMBUEMENT_TYPE.None} value={IMBUEMENT_TYPE.None}>
+                                            -- None
+                                        </option>
+                                        {imbuementsPerSlot[slot].map((value, i) => (
+                                            <option key={i} value={value}>
+                                                {value}
+                                            </option>
+                                        ))}
+                                    </select>
 
-                                        <td>
-                                            <select
-                                                onChange={(e) => changePower(slot, i, e.currentTarget.value as any)}
-                                            >
-                                                {Object.entries(IMBUEMENT_POWER).map(([name, value]) => (
-                                                    <option key={name} value={value}>
-                                                        {name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                    <select onChange={(e) => changePower(slot, i, e.currentTarget.value as any)}>
+                                        {Object.entries(IMBUEMENT_POWER).map(([name, value]) => (
+                                            <option key={name} value={value}>
+                                                {name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 ))}
-
-                <ImbuementCostList />
             </article>
+
+            <ImbuementCostList />
 
             <article>
                 <h1>Items needed</h1>
@@ -140,7 +148,7 @@ export default function Home() {
                                 readOnly
                             />
                             <span style={{ display: 'block', wordWrap: 'normal' }}>
-                                ={formatGold(itemPrices[itemData.item] * itemData.quantity)}
+                                &nbsp;=&nbsp;{formatGold(itemPrices[itemData.item] * itemData.quantity)}
                             </span>
                         </li>
                     ))}

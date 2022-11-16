@@ -5,7 +5,7 @@ export const EQUIPEMENT_SLOT = {
     Armor: 'Armor',
     Weapon: 'Weapon',
     Shield: 'Shield',
-    Legs: 'Legs',
+    // Legs: 'Legs', // No legs with imbuement
     Boots: 'Boots',
 };
 
@@ -65,7 +65,6 @@ export const imbuementsPerSlot: { [slot: string]: string[] } = {
         IMBUEMENT_TYPE.Bash,
     ],
     [EQUIPEMENT_SLOT.Shield]: [],
-    [EQUIPEMENT_SLOT.Legs]: [],
     [EQUIPEMENT_SLOT.Boots]: [],
 };
 
