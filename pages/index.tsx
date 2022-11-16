@@ -2,15 +2,13 @@ import { useEffect } from 'react';
 import { imbuementsPerSlot, imbuementTypesData, IMBUEMENT_POWER, IMBUEMENT_TYPE } from '../src/data';
 import { ItemData } from '../src/types';
 import useImbuementStore from '../src/hooks/useImbuementStore';
-
-function formatGold(gold: number): string {
-    return new Intl.NumberFormat('es-CL').format(gold) + ' gp';
-}
+import { formatGold } from '../src/utils';
+import ItemPriceList from '../src/components/ItemPriceList';
+import ImbuementCostList from '../src/components/ImbuementCostList';
 
 export default function Home() {
-    const { slots, itemPrices, changeImbuement, changeSlotQuantity, changePrice, loadPrices } = useImbuementStore();
+    const { slots, itemPrices, changeImbuement, changeSlotQuantity, loadPrices } = useImbuementStore();
 
-    // Todo: load saved prices outside component or something. Just get rid of this lol
     useEffect(() => loadPrices(), [loadPrices]);
 
     const allImbuements = Object.values(slots).flatMap((slot) => slot.imbuements);
@@ -44,9 +42,12 @@ export default function Home() {
     }
 
     return (
-        <main>
+        <main style={{ padding: 15, paddingTop: 0 }}>
             <article>
-                <h1>Imbuements</h1>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <h1>Imbuements</h1>
+                    <h2>Total: {formatGold(grandTotal)}</h2>
+                </div>
 
                 {Object.entries(imbuementsPerSlot).map(([slot, availableTypes]) => (
                     <div key={slot} style={{ display: 'flex' }}>
@@ -76,10 +77,6 @@ export default function Home() {
                                 <tr>
                                     <th>Power</th>
                                     <th>Type</th>
-                                    <th>Effect</th>
-                                    {/* <th>Cost</th>
-                                    <th>Item Cost</th>
-                                    <th>Total</th> */}
                                 </tr>
                             </thead>
 
@@ -113,39 +110,6 @@ export default function Home() {
                                                 ))}
                                             </select>
                                         </td>
-
-                                        <td>
-                                            <span>
-                                                {imbuementTypesData[imbuement.type].effectValues[imbuement.power] +
-                                                    '% '}
-
-                                                {imbuementTypesData[imbuement.type].effectName}
-                                            </span>
-                                        </td>
-
-                                        {/* <td>
-                                            <span
-                                                title={
-                                                    pricePerPower[imbuement.power].price +
-                                                    ' + ' +
-                                                    pricePerPower[imbuement.power].noFailureFee +
-                                                    ' (100%) '
-                                                }
-                                            >
-                                                {formatGold(
-                                                    pricePerPower[imbuement.power].price +
-                                                        pricePerPower[imbuement.power].noFailureFee
-                                                )}
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            <span>{formatGold(imbuement.itemsTotal)}</span>
-                                        </td>
-
-                                        <td>
-                                            <span>{formatGold(imbuement.total)}</span>
-                                        </td> */}
                                     </tr>
                                 ))}
                             </tbody>
@@ -153,7 +117,7 @@ export default function Home() {
                     </div>
                 ))}
 
-                <h2>Total: {formatGold(grandTotal)}</h2>
+                <ImbuementCostList />
             </article>
 
             <article>
@@ -168,11 +132,12 @@ export default function Home() {
                                 gridTemplateColumns: '9rem min-content 1fr 1fr',
                             }}
                         >
-                            {itemData.item} <input type="number" value={itemData.quantity} disabled />
+                            {itemData.item}
                             <input
-                                type="number"
-                                value={itemPrices[itemData.item]}
-                                onChange={(e) => changePrice(itemData.item, parseInt(e.currentTarget.value))}
+                                type="text"
+                                value={'' + itemData.quantity + ' x ' + itemPrices[itemData.item]}
+                                disabled
+                                readOnly
                             />
                             <span style={{ display: 'block', wordWrap: 'normal' }}>
                                 ={formatGold(itemPrices[itemData.item] * itemData.quantity)}
@@ -181,15 +146,8 @@ export default function Home() {
                     ))}
                 </ul>
             </article>
+
+            <ItemPriceList />
         </main>
     );
 }
-
-interface ImbuementLineProps {
-    total: number;
-    setTotal: (value: number) => void;
-    items: ItemData[];
-    setItems: (value: ItemData[]) => void;
-}
-
-function ImbuementLine({ total, items, setItems, setTotal }: ImbuementLineProps) {}
