@@ -6,6 +6,7 @@ import {
     imbuementTypesData,
     IMBUEMENT_POWER,
     IMBUEMENT_TYPE,
+    ITEM,
     pricePerPower,
 } from '../data';
 import { Imbuement } from '../types';
@@ -20,13 +21,16 @@ export type SlotData = {
 export type ImbuementStore = {
     slots: SlotData;
     itemPrices: { [item: string]: number };
+    itemStock: { [item: string]: number };
     changeImbuement: (slot: string, index: number, power: number, type: string) => void;
     changeSlotQuantity: (slot: string, quantity: number) => void;
     changePrice: (item: string, price: number) => void;
-    loadPrices: () => void;
+    changeStock: (item: string, price: number) => void;
+    loadSavedData: () => void;
 };
 
 const pricesStorageKey = 'ti_item_prices';
+const stockStorageKey = 'ti_item_stock';
 
 function createImbuement(power: number, type: string, itemPrices: { [item: string]: number }): Imbuement {
     const imbuementTypeData = imbuementTypesData[type];
@@ -68,11 +72,14 @@ for (const slot in initialSlots) {
     }
 }
 
+const initialItemStock = Object.values(ITEM).reduce((acc, itemKey) => ({ ...acc, [itemKey]: 0 }), {});
+
 const useImbuementStore = createStore(
     immer<ImbuementStore>((set) => ({
         slots: initialSlots,
         imbuements: [],
         itemPrices: baseItemPrices,
+        itemStock: initialItemStock,
         changeSlotQuantity: (slot, quantity) =>
             set((state) => {
                 const currentQuantity = state.slots[slot].imbuements.length;
@@ -126,26 +133,52 @@ const useImbuementStore = createStore(
 
                 localStorage.setItem(pricesStorageKey, JSON.stringify(state.itemPrices));
             }),
-        loadPrices: () =>
+        changeStock: (item: string, stock: number) =>
             set((state) => {
-                const storageItemPricesStr = localStorage.getItem(pricesStorageKey);
-
-                if (storageItemPricesStr) {
-                    try {
-                        const storageItemPrices = JSON.parse(storageItemPricesStr);
-
-                        for (const item in baseItemPrices) {
-                            if (storageItemPrices[item]) {
-                                state.itemPrices[item] = storageItemPrices[item];
-                            }
+                state.itemStock[item] = stock;
+                localStorage.setItem(stockStorageKey, JSON.stringify(state.itemStock));
+            }),
+        loadSavedData: () =>
+            set((state) => {
+                const storageItemPrices = getLocalStorageData(pricesStorageKey);
+                console.log({ storageItemPrices });
+                if (storageItemPrices) {
+                    for (const item in storageItemPrices) {
+                        console.log('storageItemPrices', item, storageItemPrices[item]);
+                        if (storageItemPrices[item]) {
+                            state.itemPrices[item] = storageItemPrices[item];
                         }
-                    } catch (e) {
-                        console.error('UH OH! Item prices from local storage could not be loaded', e);
-                        localStorage.removeItem(pricesStorageKey);
+                    }
+                }
+
+                const storageItemStock = getLocalStorageData(stockStorageKey);
+                console.log({ storageItemStock });
+                if (storageItemStock) {
+                    for (const item in storageItemStock) {
+                        console.log('storageItemStock', item, storageItemStock[item]);
+                        if (storageItemStock[item]) {
+                            state.itemStock[item] = storageItemStock[item];
+                        }
                     }
                 }
             }),
     }))
 );
+
+function getLocalStorageData(storageKey: string): any {
+    let data = {};
+    const rawData = localStorage.getItem(storageKey);
+
+    if (rawData) {
+        try {
+            data = JSON.parse(rawData);
+        } catch (e) {
+            console.error('UH OH! Data could not be loaded!', e);
+            localStorage.removeItem(storageKey);
+        }
+    }
+
+    return data;
+}
 
 export default useImbuementStore;

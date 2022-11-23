@@ -6,6 +6,7 @@ import { formatGold } from '../src/utils';
 import ItemPriceList from '../src/components/ItemPriceList';
 import ImbuementCostList from '../src/components/ImbuementCostList';
 import styles from '../styles/Home.module.css';
+import ItemStock from '../src/components/ItemStock';
 
 const ImbuementMaxSlot = {
     [EQUIPEMENT_SLOT.Helmet]: 2,
@@ -16,7 +17,7 @@ const ImbuementMaxSlot = {
 };
 
 export default function Home() {
-    const { slots, itemPrices, changeImbuement, changeSlotQuantity, loadPrices } = useImbuementStore();
+    const { slots, itemPrices, changeImbuement, changeSlotQuantity, loadSavedData: loadPrices } = useImbuementStore();
 
     useEffect(() => loadPrices(), [loadPrices]);
 
@@ -156,6 +157,8 @@ export default function Home() {
             </article>
 
             <ItemPriceList />
+
+            <ItemStock />
         </main>
     );
 }
