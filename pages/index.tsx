@@ -7,6 +7,7 @@ import ItemPriceList from '../src/components/ItemPriceList';
 import ImbuementCostList from '../src/components/ImbuementCostList';
 import styles from '../styles/Home.module.css';
 import ItemStock from '../src/components/ItemStock';
+import ItemsNeeded from '../src/components/ItemsNeeded';
 
 const ImbuementMaxSlot = {
     [EQUIPEMENT_SLOT.Helmet]: 2,
@@ -17,7 +18,7 @@ const ImbuementMaxSlot = {
 };
 
 export default function Home() {
-    const { slots, itemPrices, changeImbuement, changeSlotQuantity, loadSavedData: loadPrices } = useImbuementStore();
+    const { slots, changeImbuement, changeSlotQuantity, loadSavedData: loadPrices } = useImbuementStore();
 
     useEffect(() => loadPrices(), [loadPrices]);
 
@@ -129,32 +130,7 @@ export default function Home() {
 
             <ImbuementCostList />
 
-            <article>
-                <h1>Items needed</h1>
-
-                <ul style={{ margin: 0, padding: 0 }}>
-                    {items.map((itemData, i) => (
-                        <li
-                            key={i}
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: '9rem min-content 1fr 1fr',
-                            }}
-                        >
-                            {itemData.item}
-                            <input
-                                type="text"
-                                value={'' + itemData.quantity + ' x ' + itemPrices[itemData.item]}
-                                disabled
-                                readOnly
-                            />
-                            <span style={{ display: 'block', wordWrap: 'normal' }}>
-                                &nbsp;=&nbsp;{formatGold(itemPrices[itemData.item] * itemData.quantity)}
-                            </span>
-                        </li>
-                    ))}
-                </ul>
-            </article>
+            <ItemsNeeded />
 
             <ItemPriceList />
 

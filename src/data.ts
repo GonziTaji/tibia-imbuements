@@ -88,7 +88,7 @@ export const imbuementTypesData: { [type: string]: ImbuementTypeData } = {
         effectValues: [3, 5, 8],
         items: [
             [{ item: ITEM.RopeBelt, quantity: 25 }],
-            [{ item: ITEM.SilencerClaws, quantity: 15 }],
+            [{ item: ITEM.SilencerClaws, quantity: 25 }],
             [{ item: ITEM.GrimeeLeechWings, quantity: 5 }],
         ],
     },

@@ -9,7 +9,7 @@ import {
     ITEM,
     pricePerPower,
 } from '../data';
-import { Imbuement } from '../types';
+import { Imbuement, ItemData } from '../types';
 
 export type SlotData = {
     [slot: string]: {
@@ -22,6 +22,7 @@ export type ImbuementStore = {
     slots: SlotData;
     itemPrices: { [item: string]: number };
     itemStock: { [item: string]: number };
+    itemsNeeded: ItemData[];
     changeImbuement: (slot: string, index: number, power: number, type: string) => void;
     changeSlotQuantity: (slot: string, quantity: number) => void;
     changePrice: (item: string, price: number) => void;
@@ -74,12 +75,18 @@ for (const slot in initialSlots) {
 
 const initialItemStock = Object.values(ITEM).reduce((acc, itemKey) => ({ ...acc, [itemKey]: 0 }), {});
 
+const getImbuements = (slots: SlotData) => Object.values(slots).flatMap((slot) => slot.imbuements);
+
+const getItemsNeeded = (imbuements: Imbuement[]) => {
+    return imbuements.flatMap((imb) => imbuementTypesData[imb.type].items[imb.power]);
+};
+
 const useImbuementStore = createStore(
     immer<ImbuementStore>((set) => ({
         slots: initialSlots,
-        imbuements: [],
         itemPrices: baseItemPrices,
         itemStock: initialItemStock,
+        itemsNeeded: [],
         changeSlotQuantity: (slot, quantity) =>
             set((state) => {
                 const currentQuantity = state.slots[slot].imbuements.length;
@@ -95,6 +102,8 @@ const useImbuementStore = createStore(
                 }
 
                 state.slots[slot].slotQuantity = quantity;
+
+                state.itemsNeeded = getItemsNeeded(getImbuements(state.slots));
             }),
         changeImbuement: (slot: string, index: number, power: number, type: string) =>
             set((state) => {
@@ -111,6 +120,7 @@ const useImbuementStore = createStore(
                 }
 
                 imbuements.splice(index, 1, createImbuement(power, type, state.itemPrices));
+                state.itemsNeeded = getItemsNeeded(getImbuements(state.slots));
             }),
         changePrice: (item: string, price: number) =>
             set((state) => {
