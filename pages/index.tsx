@@ -10,19 +10,13 @@ import ItemStock from '../src/components/ItemStock';
 import ItemsNeeded from '../src/components/ItemsNeeded';
 import Image from 'next/image';
 import PowerSelector from '../src/components/PowerSelector';
-
-const ImbuementMaxSlot = {
-    [EQUIPEMENT_SLOT.Helmet]: 2,
-    [EQUIPEMENT_SLOT.Armor]: 3,
-    [EQUIPEMENT_SLOT.Weapon]: 3,
-    [EQUIPEMENT_SLOT.Shield]: 1,
-    [EQUIPEMENT_SLOT.Boots]: 1,
-};
+import backgroundWEBP from '../public/background.webp';
+import background2PNG from '../public/background_2.png';
 
 export default function Home() {
-    const { slots, changeImbuement, changeSlotQuantity, loadSavedData: loadPrices } = useImbuementStore();
+    const { slots, changeImbuement, loadSavedData } = useImbuementStore();
 
-    useEffect(() => loadPrices(), [loadPrices]);
+    useEffect(() => loadSavedData(), [loadSavedData]);
 
     const allImbuements = Object.values(slots).flatMap((slot) => slot.imbuements);
 
@@ -62,80 +56,61 @@ export default function Home() {
                     <h2>Total: {formatGold(grandTotal)}</h2>
                 </div>
 
-                {Object.keys(EQUIPEMENT_SLOT).map((slot) => (
-                    <div
-                        className={styles.slotContainer}
-                        key={slot}
-                        style={{
-                            border: '1px solid rgba(0,0,0,0.5)',
-                            boxShadow: '1px 1px 3px rgba(0,0,0,0.5)',
-                            padding: '1rem 2rem 0.5rem 2rem',
-                            marginBottom: '1rem',
-                        }}
-                    >
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span
+                <div
+                    style={{
+                        background: `url(${backgroundWEBP.src})`,
+                        padding: '1rem',
+                        border: '2px solid black',
+                        boxShadow: '1px 1px 3px rgba(0,0,0,0.5)',
+                    }}
+                >
+                    {Object.keys(EQUIPEMENT_SLOT).map((slot) => (
+                        <div className={styles.slotContainer} key={slot}>
+                            <div
                                 style={{
-                                    display: 'block',
-                                    textAlign: 'center',
-                                    minWidth: '5rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.2rem',
+                                    paddingBottom: '0.5rem',
                                 }}
                             >
-                                <b>{slot.toUpperCase()}</b>
-                            </span>
+                                <Image src={(EQUIPEMENT_IMG as any)[slot]} alt={slot} />
 
-                            <div>
-                                <label htmlFor="slot-quantity">Slots: </label>
-                                <input
-                                    type="number"
-                                    min={0}
-                                    max={ImbuementMaxSlot[slot]}
-                                    onFocus={(e) => e.currentTarget.select()}
-                                    onChange={(e) => changeSlotQuantity(slot as any, Number(e.currentTarget.value))}
-                                    value={slots[slot].slotQuantity}
-                                />
+                                {slots[slot].imbuements.map((imbuement, i) => (
+                                    <div
+                                        key={i}
+                                        style={{
+                                            border: '1px solid black',
+                                            background: `url(${background2PNG.src})`,
+                                            backgroundSize: 'cover',
+                                        }}
+                                    >
+                                        <select
+                                            onChange={(e) => changeType(slot, i, e.currentTarget.value as any)}
+                                            value={imbuement.type}
+                                        >
+                                            <option key={IMBUEMENT_TYPE.None} value={IMBUEMENT_TYPE.None}>
+                                                -- Empty
+                                            </option>
+                                            {imbuementsPerSlot[slot].map((value, i) => (
+                                                <option key={i} value={value}>
+                                                    {value}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                        <div>
+                                            <PowerSelector
+                                                imbuement={imbuement}
+                                                setPower={(power) => changePower(slot, i, power)}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
-
-                        <hr />
-
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.2rem',
-                                paddingBottom: '0.5rem',
-                            }}
-                        >
-                            <Image src={(EQUIPEMENT_IMG as any)[slot]} alt={slot} />
-
-                            {slots[slot].imbuements.map((imbuement, i) => (
-                                <div key={i} style={{ border: '1px solid black' }}>
-                                    <select
-                                        onChange={(e) => changeType(slot, i, e.currentTarget.value as any)}
-                                        value={imbuement.type}
-                                    >
-                                        <option key={IMBUEMENT_TYPE.None} value={IMBUEMENT_TYPE.None}>
-                                            -- None
-                                        </option>
-                                        {imbuementsPerSlot[slot].map((value, i) => (
-                                            <option key={i} value={value}>
-                                                {value}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                    <div>
-                                        <PowerSelector
-                                            imbuement={imbuement}
-                                            setPower={(power) => changePower(slot, i, power)}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </article>
 
             <ImbuementCostList />

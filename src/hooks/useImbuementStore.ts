@@ -3,6 +3,7 @@ import { immer } from 'zustand/middleware/immer';
 import {
     baseItemPrices,
     EQUIPEMENT_SLOT,
+    ImbuementMaxSlot,
     imbuementTypesData,
     IMBUEMENT_POWER,
     IMBUEMENT_TYPE,
@@ -87,8 +88,12 @@ const useImbuementStore = createStore(
         itemPrices: baseItemPrices,
         itemStock: initialItemStock,
         itemsNeeded: [],
-        changeSlotQuantity: (slot, quantity) =>
-            set((state) => {
+        changeSlotQuantity: (slot, quantity) => {
+            if (ImbuementMaxSlot[slot] < quantity) {
+                return;
+            }
+
+            return set((state) => {
                 const currentQuantity = state.slots[slot].imbuements.length;
 
                 if (currentQuantity > quantity) {
@@ -104,7 +109,8 @@ const useImbuementStore = createStore(
                 state.slots[slot].slotQuantity = quantity;
 
                 state.itemsNeeded = getItemsNeeded(getImbuements(state.slots));
-            }),
+            });
+        },
         changeImbuement: (slot: string, index: number, power: number, type: string) =>
             set((state) => {
                 const imbuements = state.slots[slot].imbuements;

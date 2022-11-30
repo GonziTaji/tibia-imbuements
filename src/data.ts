@@ -3,7 +3,7 @@ import helmet from '../public/helmet.png';
 import armor from '../public/armor.png';
 import weapon from '../public/weapon.png';
 import shield from '../public/shield.png';
-import boots from '../public/shield.png';
+import boots from '../public/boots.png';
 
 export const EQUIPEMENT_IMG = {
     Helmet: helmet,
@@ -132,6 +132,14 @@ for (const imbuementType in IMBUEMENT_TYPE) {
     data.items[IMBUEMENT_POWER.Intricate].push(...data.items[IMBUEMENT_POWER.Basic]);
     data.items[IMBUEMENT_POWER.Powerfull].push(...data.items[IMBUEMENT_POWER.Intricate]);
 }
+
+export const ImbuementMaxSlot = {
+    [EQUIPEMENT_SLOT.Helmet]: 2,
+    [EQUIPEMENT_SLOT.Armor]: 3,
+    [EQUIPEMENT_SLOT.Weapon]: 3,
+    [EQUIPEMENT_SLOT.Shield]: 1,
+    [EQUIPEMENT_SLOT.Boots]: 1,
+};
 
 // TODO: save/load from localstorage
 export const baseItemPrices: { [item: string]: number } = {
