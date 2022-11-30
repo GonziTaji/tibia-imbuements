@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { EQUIPEMENT_SLOT, imbuementsPerSlot, imbuementTypesData, IMBUEMENT_POWER, IMBUEMENT_TYPE } from '../src/data';
+import { EQUIPEMENT_IMG, EQUIPEMENT_SLOT, imbuementsPerSlot, IMBUEMENT_POWER, IMBUEMENT_TYPE } from '../src/data';
 import { ItemData } from '../src/types';
 import useImbuementStore from '../src/hooks/useImbuementStore';
 import { formatGold } from '../src/utils';
@@ -8,6 +8,7 @@ import ImbuementCostList from '../src/components/ImbuementCostList';
 import styles from '../styles/Home.module.css';
 import ItemStock from '../src/components/ItemStock';
 import ItemsNeeded from '../src/components/ItemsNeeded';
+import Image from 'next/image';
 
 const ImbuementMaxSlot = {
     [EQUIPEMENT_SLOT.Helmet]: 2,
@@ -97,9 +98,18 @@ export default function Home() {
 
                         <hr />
 
-                        <div>
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.2rem',
+                                paddingBottom: '0.5rem',
+                            }}
+                        >
+                            <Image src={(EQUIPEMENT_IMG as any)[slot]} alt={slot} />
+
                             {slots[slot].imbuements.map((imbuement, i) => (
-                                <div key={i} style={{ display: 'flex', gap: '0.2rem', paddingBottom: '0.5rem' }}>
+                                <div key={i} style={{ border: '1px solid black' }}>
                                     <select
                                         onChange={(e) => changeType(slot, i, e.currentTarget.value as any)}
                                         value={imbuement.type}
@@ -114,13 +124,19 @@ export default function Home() {
                                         ))}
                                     </select>
 
-                                    <select onChange={(e) => changePower(slot, i, e.currentTarget.value as any)}>
+                                    <div>
                                         {Object.entries(IMBUEMENT_POWER).map(([name, value]) => (
-                                            <option key={name} value={value}>
-                                                {name}
-                                            </option>
+                                            <input
+                                                key={name}
+                                                type="radio"
+                                                name={'power_' + slot + '_' + i}
+                                                checked={Number(value) === Number(imbuement.power)}
+                                                value={value}
+                                                title={'' + imbuement.power + ' ' + value}
+                                                onChange={(e) => changePower(slot, i, e.currentTarget.value as any)}
+                                            />
                                         ))}
-                                    </select>
+                                    </div>
                                 </div>
                             ))}
                         </div>

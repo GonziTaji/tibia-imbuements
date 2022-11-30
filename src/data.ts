@@ -1,11 +1,23 @@
 import { ImbuementPrice, ImbuementTypeData } from './types';
+import helmet from '../public/helmet.png';
+import armor from '../public/armor.png';
+import weapon from '../public/weapon.png';
+import shield from '../public/shield.png';
+import boots from '../public/shield.png';
+
+export const EQUIPEMENT_IMG = {
+    Helmet: helmet,
+    Armor: armor,
+    Weapon: weapon,
+    Shield: shield,
+    Boots: boots,
+};
 
 export const EQUIPEMENT_SLOT = {
     Helmet: 'Helmet',
     Armor: 'Armor',
     Weapon: 'Weapon',
     Shield: 'Shield',
-    // Legs: 'Legs', // No legs with imbuement
     Boots: 'Boots',
 };
 

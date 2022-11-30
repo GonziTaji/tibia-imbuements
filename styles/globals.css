@@ -33,3 +33,15 @@ select {
     height: 1.5rem;
     padding-left: 0.2rem;
 }
+
+/* Hide spin arrows for input type number */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* for mozilla */
+input[type='number'] {
+    -moz-appearance: textfield;
+}
