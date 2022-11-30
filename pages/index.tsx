@@ -9,6 +9,7 @@ import styles from '../styles/Home.module.css';
 import ItemStock from '../src/components/ItemStock';
 import ItemsNeeded from '../src/components/ItemsNeeded';
 import Image from 'next/image';
+import PowerSelector from '../src/components/PowerSelector';
 
 const ImbuementMaxSlot = {
     [EQUIPEMENT_SLOT.Helmet]: 2,
@@ -125,17 +126,10 @@ export default function Home() {
                                     </select>
 
                                     <div>
-                                        {Object.entries(IMBUEMENT_POWER).map(([name, value]) => (
-                                            <input
-                                                key={name}
-                                                type="radio"
-                                                name={'power_' + slot + '_' + i}
-                                                checked={Number(value) === Number(imbuement.power)}
-                                                value={value}
-                                                title={'' + imbuement.power + ' ' + value}
-                                                onChange={(e) => changePower(slot, i, e.currentTarget.value as any)}
-                                            />
-                                        ))}
+                                        <PowerSelector
+                                            imbuement={imbuement}
+                                            setPower={(power) => changePower(slot, i, power)}
+                                        />
                                     </div>
                                 </div>
                             ))}
