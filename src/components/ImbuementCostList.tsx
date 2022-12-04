@@ -8,7 +8,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 const filledArray = (length: number, value: any) => new Array(length).fill(value);
 
 export default function ImbuementCostList() {
-    const { slots, itemPrices } = useImbuementStore();
+    const { slots } = useImbuementStore();
 
     const groupedImbuements: (Imbuement & { quantity: number })[] = useMemo(() => {
         const groupedImbuements: (Imbuement & { quantity: number })[] = [];

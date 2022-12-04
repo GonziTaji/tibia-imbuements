@@ -144,7 +144,7 @@ const useImbuementStore = createStore(
                             (_item) => _item.item === item
                         );
 
-                        if (usesItem) {
+                        if (usesItem || item === ITEM.GoldToken) {
                             slotImbuements[i] = createImbuement(imbuement.power, imbuement.type, state.itemPrices);
                         }
                     }
