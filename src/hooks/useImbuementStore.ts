@@ -37,12 +37,14 @@ const stockStorageKey = 'ti_item_stock';
 function createImbuement(power: number, type: string, itemPrices: { [item: string]: number }): Imbuement {
     const imbuementTypeData = imbuementTypesData[type];
 
-    const imbuement = {
+    const imbuement: Imbuement = {
         power,
         type,
         items: imbuementTypeData.items[power],
         itemsTotal: 0,
         total: 0,
+        goldTokenValue: 2 * (power + 1) * itemPrices[ITEM.GoldToken],
+        totalWithGoldToken: 0,
     };
 
     for (const { item, quantity } of imbuement.items) {
@@ -55,6 +57,7 @@ function createImbuement(power: number, type: string, itemPrices: { [item: strin
         const price = pricePerPower[imbuement.power];
 
         imbuement.total = imbuement.itemsTotal + price.price + price.noFailureFee;
+        imbuement.totalWithGoldToken = imbuement.goldTokenValue + price.price + price.noFailureFee;
     }
 
     return imbuement;

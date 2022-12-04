@@ -1,4 +1,4 @@
-import { IMBUEMENT_POWER, IMBUEMENT_TYPE, pricePerPower } from '../data';
+import { IMBUEMENT_POWER, IMBUEMENT_TYPE, ITEM, pricePerPower } from '../data';
 import useImbuementStore from '../hooks/useImbuementStore';
 import { Imbuement } from '../types';
 import { formatGold } from '../utils';
@@ -8,7 +8,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 const filledArray = (length: number, value: any) => new Array(length).fill(value);
 
 export default function ImbuementCostList() {
-    const { slots } = useImbuementStore();
+    const { slots, itemPrices } = useImbuementStore();
 
     const groupedImbuements: (Imbuement & { quantity: number })[] = useMemo(() => {
         const groupedImbuements: (Imbuement & { quantity: number })[] = [];
@@ -63,7 +63,8 @@ export default function ImbuementCostList() {
                         <th>Imbuement</th>
                         <th>Unit total</th>
                         <th>Quantity</th>
-                        <th>Total</th>
+                        <th>Total (Items)</th>
+                        <th>Total (Gold T.)</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -80,6 +81,10 @@ export default function ImbuementCostList() {
                                 <td style={{ textAlign: 'center' }}>{imbuement.quantity}</td>
 
                                 <td className={styles.number}>{formatGold(imbuement.total * imbuement.quantity)}</td>
+
+                                <td className={styles.number}>
+                                    {formatGold(imbuement.totalWithGoldToken * imbuement.quantity)}
+                                </td>
 
                                 <td>
                                     <button onClick={() => changeCollapsed(i, !collapsed[i])}>
@@ -105,7 +110,7 @@ export default function ImbuementCostList() {
                                                     <th>{collapsed[i]} Cost</th>
                                                     <th>100% fee</th>
                                                     <th>Item Cost</th>
-                                                    <th>Total</th>
+                                                    <th>Gold Token Cost</th>
                                                 </tr>
                                             </thead>
 
@@ -120,7 +125,9 @@ export default function ImbuementCostList() {
                                                     <td className={styles.number}>
                                                         {formatGold(imbuement.itemsTotal)}
                                                     </td>
-                                                    <td className={styles.number}>{formatGold(imbuement.total)}</td>
+                                                    <td className={styles.number}>
+                                                        {formatGold(imbuement.goldTokenValue)}
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>

@@ -19,5 +19,7 @@ export type Imbuement = {
     type: string;
     items: Array<ItemData>;
     itemsTotal: number;
+    goldTokenValue: number;
+    totalWithGoldToken: number;
     total: number;
 };

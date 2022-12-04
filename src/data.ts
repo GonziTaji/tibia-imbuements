@@ -36,6 +36,7 @@ export const IMBUEMENT_TYPE = {
 };
 
 export const ITEM = {
+    GoldToken: 'Gold Token',
     VampireTeeth: 'Vampire Theet',
     BloodyPincers: 'Bloody Pincers',
     DeadBrain: 'Dead Brain',
@@ -143,6 +144,7 @@ export const ImbuementMaxSlot = {
 
 // TODO: save/load from localstorage
 export const baseItemPrices: { [item: string]: number } = {
+    [ITEM.GoldToken]: 4000,
     [ITEM.VampireTeeth]: 1500,
     [ITEM.BloodyPincers]: 5800,
     [ITEM.DeadBrain]: 14000,
