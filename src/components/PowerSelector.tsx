@@ -17,12 +17,13 @@ export default function PowerSelector({ imbuement, setPower }: PowerSelectorProp
             {Object.entries(IMBUEMENT_POWER).map(([name, value]) => (
                 <span style={{ cursor: 'pointer' }} key={name} onClick={() => setPower(value as any)}>
                     <Image
-                        // width={20}
+                        width={28}
                         src={isChecked(value) ? powerGemPNG : powerlessGemPNG}
                         alt={`${isChecked(value) ? 'power' : 'powerless'}_gem_` + name}
                     />
                 </span>
             ))}
+            <small style={{ display: 'block' }}>{Object.keys(IMBUEMENT_POWER)[imbuement.power]}</small>
         </div>
     );
 }

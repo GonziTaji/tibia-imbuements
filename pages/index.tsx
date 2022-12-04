@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { EQUIPEMENT_IMG, EQUIPEMENT_SLOT, imbuementsPerSlot, IMBUEMENT_POWER, IMBUEMENT_TYPE } from '../src/data';
+import { EQUIPEMENT_IMG, EQUIPEMENT_SLOT, imbuementsPerSlot, IMBUEMENT_TYPE } from '../src/data';
 import { ItemData } from '../src/types';
 import useImbuementStore from '../src/hooks/useImbuementStore';
 import { formatGold } from '../src/utils';
@@ -74,7 +74,7 @@ export default function Home() {
                                     paddingBottom: '0.5rem',
                                 }}
                             >
-                                <Image src={(EQUIPEMENT_IMG as any)[slot]} alt={slot} />
+                                <Image src={(EQUIPEMENT_IMG as any)[slot]} alt={slot} width={72} />
 
                                 {slots[slot].imbuements.map((imbuement, i) => (
                                     <div
