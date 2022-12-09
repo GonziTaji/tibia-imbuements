@@ -1,4 +1,16 @@
 .costTable {
+    border-collapse: collapse;
+
+    table {
+        border: none;
+    }
+
+    td,
+    th {
+        border: 1px solid black;
+        padding: 0.2rem;
+    }
+
     td.number {
         text-align: right;
     }

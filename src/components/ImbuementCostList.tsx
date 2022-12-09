@@ -60,7 +60,12 @@ export default function ImbuementCostList() {
             <table className={styles.costTable}>
                 <thead>
                     <tr>
-                        <th>Imbuement</th>
+                        <th colSpan={5} style={{ textAlign: 'left' }}>
+                            Imbuement
+                        </th>
+                    </tr>
+
+                    <tr>
                         <th>Unit total</th>
                         <th>Quantity</th>
                         <th>Total (Items)</th>
@@ -72,10 +77,12 @@ export default function ImbuementCostList() {
                 <tbody>
                     {groupedImbuements.map((imbuement, i) => (
                         <Fragment key={i}>
-                            <tr key={i}>
-                                <td>
+                            <tr>
+                                <td colSpan={5} style={{ textAlign: 'left' }}>
                                     {Object.keys(IMBUEMENT_POWER)[imbuement.power]} {imbuement.type}
                                 </td>
+                            </tr>
+                            <tr>
                                 <td className={styles.number}>{formatGold(imbuement.itemsTotal)}</td>
 
                                 <td style={{ textAlign: 'center' }}>{imbuement.quantity}</td>
