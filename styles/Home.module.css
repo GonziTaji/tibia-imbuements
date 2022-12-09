@@ -10,3 +10,11 @@
     font-family: 'monospace';
     font-weight: bold;
 }
+
+.header {
+    color: white;
+    display: block;
+    font-weight: bold;
+    padding: 0.2rem;
+    padding-left: 1rem;
+}

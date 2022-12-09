@@ -13,6 +13,7 @@ import PowerSelector from '../src/components/PowerSelector';
 import backgroundWEBP from '../public/background.webp';
 import background2PNG from '../public/background_2.png';
 import ItemsGrid from '../src/components/ItemsGrid';
+import headerBgPNG from '../public/header_bg.png';
 
 export default function Home() {
     const { slots, changeImbuement, loadSavedData } = useImbuementStore();
@@ -50,18 +51,22 @@ export default function Home() {
     }
 
     return (
-        <main style={{ padding: 15, paddingTop: 0 }}>
+        <main style={{ padding: 15, paddingTop: 10 }}>
             <article style={{ width: 'fit-content' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <h1>Imbuements</h1>
-                    <h2>Total: {formatGold(grandTotal)}</h2>
-                </div>
+                <span
+                    className={styles.header}
+                    style={{
+                        background: `url(${headerBgPNG.src})`,
+                    }}
+                >
+                    Imbuements
+                </span>
 
                 <div
                     style={{
                         background: `url(${backgroundWEBP.src})`,
                         padding: '1rem',
-                        border: '2px solid black',
+                        border: '1px solid black',
                         boxShadow: '1px 1px 3px rgba(0,0,0,0.5)',
                     }}
                 >

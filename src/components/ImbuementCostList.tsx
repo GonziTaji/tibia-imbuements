@@ -145,6 +145,7 @@ export default function ImbuementCostList() {
                     ))}
                 </tbody>
             </table>
+            <br />
         </article>
     );
 }
