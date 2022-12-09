@@ -24,6 +24,7 @@ export type ImbuementStore = {
     itemPrices: { [item: string]: number };
     itemStock: { [item: string]: number };
     itemsNeeded: ItemData[];
+    goldTokenQuantity: number;
     changeImbuement: (slot: string, index: number, power: number, type: string) => void;
     changeSlotQuantity: (slot: string, quantity: number) => void;
     changePrice: (item: string, price: number) => void;
@@ -82,7 +83,21 @@ const initialItemStock = Object.values(ITEM).reduce((acc, itemKey) => ({ ...acc,
 const getImbuements = (slots: SlotData) => Object.values(slots).flatMap((slot) => slot.imbuements);
 
 const getItemsNeeded = (imbuements: Imbuement[]) => {
-    return imbuements.flatMap((imb) => imbuementTypesData[imb.type].items[imb.power]);
+    const addedItems = new Map();
+    const items = [];
+
+    for (const imb of imbuements) {
+        for (const { item, quantity } of imbuementTypesData[imb.type].items[imb.power]) {
+            if (!addedItems.has(item)) {
+                const itemsLength = items.push({ item, quantity });
+                addedItems.set(item, itemsLength - 1);
+            } else {
+                items[addedItems.get(item)].quantity += quantity;
+            }
+        }
+    }
+
+    return items;
 };
 
 const useImbuementStore = createStore(
@@ -91,6 +106,7 @@ const useImbuementStore = createStore(
         itemPrices: baseItemPrices,
         itemStock: initialItemStock,
         itemsNeeded: [],
+        goldTokenQuantity: 0,
         changeSlotQuantity: (slot, quantity) => {
             if (ImbuementMaxSlot[slot] < quantity) {
                 return;
@@ -111,7 +127,15 @@ const useImbuementStore = createStore(
 
                 state.slots[slot].slotQuantity = quantity;
 
-                state.itemsNeeded = getItemsNeeded(getImbuements(state.slots));
+                // TODO: Abstract repeating code
+                const allImbuements = getImbuements(state.slots);
+                state.itemsNeeded = getItemsNeeded(allImbuements);
+                state.goldTokenQuantity = 0;
+                for (const imb of allImbuements) {
+                    if (imb.type !== IMBUEMENT_TYPE.None) {
+                        state.goldTokenQuantity += (imb.power + 1) * 2;
+                    }
+                }
             });
         },
         changeImbuement: (slot: string, index: number, power: number, type: string) =>
@@ -129,7 +153,16 @@ const useImbuementStore = createStore(
                 }
 
                 imbuements.splice(index, 1, createImbuement(power, type, state.itemPrices));
-                state.itemsNeeded = getItemsNeeded(getImbuements(state.slots));
+
+                // TODO: Abstract repeating code
+                const allImbuements = getImbuements(state.slots);
+                state.itemsNeeded = getItemsNeeded(allImbuements);
+                state.goldTokenQuantity = 0;
+                for (const imb of allImbuements) {
+                    if (imb.type !== IMBUEMENT_TYPE.None) {
+                        state.goldTokenQuantity += (imb.power + 1) * 2;
+                    }
+                }
             }),
         changePrice: (item: string, price: number) =>
             set((state) => {

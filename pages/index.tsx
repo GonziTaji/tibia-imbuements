@@ -12,6 +12,7 @@ import Image from 'next/image';
 import PowerSelector from '../src/components/PowerSelector';
 import backgroundWEBP from '../public/background.webp';
 import background2PNG from '../public/background_2.png';
+import ItemsGrid from '../src/components/ItemsGrid';
 
 export default function Home() {
     const { slots, changeImbuement, loadSavedData } = useImbuementStore();
@@ -115,11 +116,7 @@ export default function Home() {
 
             <ImbuementCostList />
 
-            <ItemsNeeded />
-
-            <ItemPriceList />
-
-            <ItemStock />
+            <ItemsGrid></ItemsGrid>
         </main>
     );
 }

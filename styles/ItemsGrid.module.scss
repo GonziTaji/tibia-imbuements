@@ -1,0 +1,71 @@
+.container {
+    font-family: monospace;
+    width: fit-content;
+    color: white;
+    border: 1px solid black;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+
+    main {
+        box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5) inset;
+        padding-bottom: 0.3rem;
+    }
+}
+
+.header {
+    display: block;
+    font-weight: bold;
+    padding: 0.2rem;
+    padding-left: 1rem;
+}
+
+.checkboxContainer {
+    padding: 0.5rem;
+}
+
+.itemGridTable {
+    margin: 1rem;
+    border-collapse: collapse;
+
+    tr.top td {
+        padding-top: 0.3rem;
+    }
+
+    tr.bottom td {
+        padding-bottom: 0.3rem;
+    }
+
+    thead {
+        th.itemname {
+            text-align: initial;
+        }
+    }
+
+    tbody {
+        td {
+            text-align: center;
+
+            &.itemname {
+                text-align: initial;
+            }
+        }
+
+        input {
+            background-color: #363636;
+            color: white;
+
+            padding: 0.2rem;
+
+            &.price {
+                width: 5rem;
+            }
+
+            &.quantity {
+                width: 3rem;
+            }
+
+            &.total {
+                width: 6rem;
+            }
+        }
+    }
+}
